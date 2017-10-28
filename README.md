@@ -1,6 +1,6 @@
 # aws-lambda-by-hand
 
-This shows how easy it is to create and invoke AWS Lambda functions without a framework.
+This shows how easy it is to create and invoke AWS Lambda functions without a framework. Read the [Makefile](Makefile) for all the magic.
 
 Following on from the tutorial at: http://docs.aws.amazon.com/lambda/latest/dg/with-userapp-walkthrough-custom-events-create-nodejs-function.html
 
