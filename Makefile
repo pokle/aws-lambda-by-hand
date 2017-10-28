@@ -1,8 +1,8 @@
 
-LAMBDA             := helloworld
+LAMBDA             := just-a-lambda-by-hand
 AWS_REGION         := ap-southeast-2
 AWS_LAMBDA_RUNTIME := nodejs6.10
-AWS_LAMBDA_ROLE    := arn:aws:iam::158527237998:role/helloworld-lambda-role
+AWS_LAMBDA_ROLE    := $(LAMBDA)-lambda-role
 DIST               := dist/$(LAMBDA).zip
 
 $(DIST): *.js
@@ -10,12 +10,15 @@ $(DIST): *.js
 	@rm -f $(DIST)
 	@zip -o $@ lambda.js
 
+create-role:
+	aws iam create-role --role-name $(AWS_LAMBDA_ROLE) --assume-role-policy-document file://lambda-role.json > lambda-role-created.json
+
 create: $(DIST)
-	@aws lambda create-function \
+	aws lambda create-function \
 		--region $(AWS_REGION) \
 		--function-name $(LAMBDA) \
 		--zip-file fileb://$(DIST) \
-		--role $(AWS_LAMBDA_ROLE) \
+		--role $(shell jq -r '.Role.Arn' lambda-role-created.json) \
 		--handler lambda.handler \
 		--runtime $(AWS_LAMBDA_RUNTIME) \
 		--publish
@@ -31,6 +34,12 @@ delete:
 	@aws lambda delete-function \
 		--region $(AWS_REGION) \
 		--function-name $(LAMBDA)
+
+delete-role:
+	@aws iam delete-role \
+		--region $(AWS_REGION) \
+		--role-name $(AWS_LAMBDA_ROLE)
+	@rm -f lambda-role-created.json
 
 invoke:
 	@aws lambda invoke \
